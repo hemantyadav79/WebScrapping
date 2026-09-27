@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Property Explorer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="header-inner">
+    <div class="brand-row">
+      <div class="brand">
+        <span class="logo">&#9962;</span>
+        <span>Property Explorer<small>Powered by your scraped data</small></span>
+      </div>
+      <div class="count-pill"><b id="countNum">0</b><span id="countLabel">properties</span></div>
+    </div>
+    <div class="search-row">
+      <div class="search-box">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"></circle><path d="m21 21-4.3-4.3"></path></svg>
+        <input id="search" type="search" placeholder="Search address, suburb, agent, agency, keyword&hellip;" autocomplete="off">
+      </div>
+      <button class="btn btn-primary" id="reload" title="Reload data">&#8635; Refresh data</button>
+    </div>
+  </div>
+</header>
+
+<div id="banner" class="banner" hidden></div>
+
+<section class="filters" id="filters">
+  <div class="group"><label>Status</label><select id="f-status"></select></div>
+  <div class="group"><label>Type</label><select id="f-type"></select></div>
+  <div class="group"><label>Suburb</label><select id="f-suburb"></select></div>
+  <div class="group"><label>Beds (min)</label><select id="f-beds"><option value="">Any</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></div>
+  <div class="group"><label>Baths (min)</label><select id="f-baths"><option value="">Any</option><option>1</option><option>2</option><option>3</option></select></div>
+  <div class="group"><label>Price range (AUD)</label>
+    <div class="price-range"><input id="f-min" type="number" placeholder="Min" min="0"><span>&ndash;</span><input id="f-max" type="number" placeholder="Max" min="0"></div>
+  </div>
+  <button class="clear-btn" id="clear">Clear all</button>
+</section>
+
+<div class="results-head">
+  <div class="showing" id="showing"></div>
+  <div class="group"><label style="display:none">Sort</label>
+    <select id="sort">
+      <option value="relevance">Sort: Featured</option>
+      <option value="price-desc">Price: High to Low</option>
+      <option value="price-asc">Price: Low to High</option>
+      <option value="beds-desc">Most bedrooms</option>
+      <option value="date-desc">Newest (date)</option>
+      <option value="addr">Address (A&ndash;Z)</option>
+    </select>
+  </div>
+</div>
+
+<main id="grid" class="grid" aria-live="polite"></main>
+<div id="pager" class="pager"></div>
+
+<footer>
+  <span id="footNote">Property Explorer &mdash; a self-contained view of your <code>listings.json</code>. Re-run the scraper and click &ldquo;Refresh data&rdquo; to update.</span>
+</footer>
+
+<div class="modal-backdrop" id="modal" role="dialog" aria-modal="true">
+  <div class="modal" id="modalCard"></div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

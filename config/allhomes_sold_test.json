@@ -1,0 +1,36 @@
+{
+  "global": {
+    "output_root": "website_backup",
+    "concurrency": 1,
+    "request_timeout": 45,
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0 Safari/537.36",
+    "render_engine": "http",
+    "headless": false,
+    "page_load_wait": 8.0,
+    "block_detection": true,
+    "use_ollama": false,
+    "validate_before_save": true,
+    "auto_fix_data": true,
+    "min_quality_score": 30,
+    "log_level": "INFO"
+  },
+  "websites": [
+    {
+      "name": "AllhomesFlorey_Sold_TEST",
+      "url": "https://www.allhomes.com.au/research/florey-act-2615",
+      "mode": "listings",
+      "max_pages": 3,
+      "follow_pagination": false,
+      "pagination_graphql": true,
+      "graphql_hash": "d16064a1e14de8b8192be6bece8e2bb0dec81e1d46d0736461fd8c9484211996",
+      "graphql_page_size": 10,
+      "render_engine": "drission",
+      "extract_listings": true,
+      "listing_source": "allhomes",
+      "allowed_paths": ["/research"],
+      "download_images": false,
+      "take_screenshots": false, "rewrite_links": false, "include_subdomains": false,
+      "export_csv": true, "export_excel": true, "export_json": true
+    }
+  ]
+}

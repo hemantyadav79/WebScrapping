@@ -1,0 +1,78 @@
+classDiagram
+    class AppConfig {
+        +GlobalConfig global_config
+        +list~WebsiteConfig~ websites
+        +resolved_engine(site) RenderEngineType
+    }
+    class GlobalConfig
+    class WebsiteConfig
+    AppConfig o-- GlobalConfig
+    AppConfig o-- "many" WebsiteConfig
+
+    class RenderEngine {
+        <<abstract>>
+        +start()
+        +fetch(url) FetchResult
+        +fetch_binary(url) FetchResult
+        +screenshot(url, path) bool
+        +close()
+    }
+    class HttpRenderEngine
+    class DrissionRenderEngine
+    RenderEngine <|-- HttpRenderEngine
+    RenderEngine <|-- DrissionRenderEngine
+    DrissionRenderEngine o-- HttpRenderEngine : binaries
+
+    class Application {
+        +run() list~SiteSummary~
+    }
+    class WebsiteProcessor {
+        +run() SiteSummary
+    }
+    Application o-- WebsiteProcessor
+    WebsiteProcessor --> RenderEngine
+    WebsiteProcessor --> Crawler
+    WebsiteProcessor --> AssetDownloader
+    WebsiteProcessor --> LinkRewriter
+    WebsiteProcessor --> ScreenshotService
+    WebsiteProcessor --> ReportBuilder
+    WebsiteProcessor --> Workspace
+    WebsiteProcessor --> CrawlState
+
+    class Crawler {
+        +crawl(on_page) CrawlOutcome
+    }
+    class Frontier {
+        +add(url, depth) bool
+        +pop() CrawlTask
+        +to_dict() dict
+    }
+    class PageParser {
+        +parse(html, base_url) PageRecord
+    }
+    Crawler o-- Frontier
+    Crawler o-- PageParser
+    Crawler --> RenderEngine
+
+    class AssetDownloader {
+        +download_all(records) list~AssetRecord~
+    }
+    AssetDownloader --> Workspace
+    AssetDownloader --> RenderEngine
+
+    class ReportBuilder {
+        +build_all(pages, assets, broken, summary)
+    }
+    class Workspace {
+        +create_tree()
+        +html_path(url) Path
+        +asset_path(url, type) Path
+    }
+
+    class PageRecord
+    class AssetRecord
+    class BrokenLink
+    class SiteSummary
+    PageParser ..> PageRecord
+    AssetDownloader ..> AssetRecord
+    ReportBuilder ..> SiteSummary

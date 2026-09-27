@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Belconnen Sold-History — Explorer</title>
+<style>
+  :root{--navy:#1f3a5f;--blue:#2e75b6;--sky:#0ea5e9;--ink:#1e293b;--muted:#64748b;
+        --line:#e6ebf2;--soft:#f7f9fc;--chip:#eef4fb;--ok:#16a34a;--gold:#b45309}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--ink);background:#eef2f7}
+  .hero{background:linear-gradient(135deg,#1f3a5f 0%,#2e75b6 60%,#0ea5e9 100%);color:#fff;padding:26px 28px}
+  .hero h1{margin:0;font-size:24px;letter-spacing:-.3px}
+  .hero .sub{opacity:.92;font-size:13px;margin-top:4px}
+  .bar{display:flex;flex-wrap:wrap;gap:10px;padding:14px 22px;background:#fff;border-bottom:1px solid var(--line);
+       position:sticky;top:0;z-index:6;box-shadow:0 1px 4px rgba(15,23,42,.05)}
+  .bar input,.bar select{padding:9px 12px;border:1px solid var(--line);border-radius:10px;font-size:14px;background:#fff}
+  .bar input#q{flex:1;min-width:240px}
+  .count{margin-left:auto;align-self:center;color:var(--muted);font-size:13px;font-weight:600}
+  .wrap{padding:18px 22px;max-width:1280px;margin:0 auto}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:16px}
+  .card{background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden;cursor:pointer;
+        transition:transform .12s ease,box-shadow .12s ease;display:flex;flex-direction:column}
+  .card:hover{transform:translateY(-3px);box-shadow:0 10px 24px rgba(15,23,42,.12)}
+  .card .top{height:6px;background:linear-gradient(90deg,var(--navy),var(--sky))}
+  .card .top.sold{background:linear-gradient(90deg,#15803d,#22c55e)}
+  .card .body{padding:14px 16px;display:flex;flex-direction:column;gap:6px;flex:1}
+  .badge{align-self:flex-start;font-size:11px;font-weight:800;letter-spacing:.4px;padding:2px 9px;border-radius:999px;
+         background:#dcfce7;color:#166534;text-transform:uppercase}
+  .price{font-size:20px;font-weight:800;color:var(--navy)}
+  .addr{font-weight:700;font-size:15px;line-height:1.25}
+  .loc{color:var(--muted);font-size:12.5px}
+  .specs{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+  .spec{background:var(--chip);color:var(--navy);border-radius:8px;padding:3px 9px;font-size:12px;font-weight:600}
+  .foot{margin-top:auto;padding-top:8px;border-top:1px solid var(--line);color:var(--muted);font-size:12px;
+        display:flex;justify-content:space-between;gap:8px}
+  .empty{padding:60px;text-align:center;color:var(--muted)}
+  /* modal */
+  .modal{position:fixed;inset:0;background:rgba(15,23,42,.6);display:none;align-items:flex-start;justify-content:center;overflow:auto;z-index:30}
+  .modal.open{display:flex}
+  .sheet{background:#fff;max-width:760px;width:94%;margin:36px 0;border-radius:16px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.3)}
+  .sheet .head{background:linear-gradient(135deg,#1f3a5f,#2e75b6);color:#fff;padding:20px 26px;position:relative}
+  .sheet .head h2{margin:0;font-size:21px}
+  .sheet .head .sub{opacity:.9;font-size:13px;margin-top:3px}
+  .sheet .head .mprice{margin-top:8px;font-size:22px;font-weight:800}
+  .close{position:absolute;top:14px;right:16px;border:none;background:rgba(255,255,255,.2);color:#fff;
+         width:32px;height:32px;border-radius:50%;font-size:20px;cursor:pointer;line-height:1}
+  .mbody{padding:22px 26px}
+  .grid2{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin-bottom:6px}
+  .cell .k{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.4px}
+  .cell .v{font-weight:700;font-size:14px;margin-top:2px}
+  .sec{font-weight:800;color:var(--blue);margin:18px 0 8px;border-bottom:2px solid var(--line);padding-bottom:5px;font-size:14px}
+  .chips{display:flex;flex-wrap:wrap;gap:7px}
+  .chips span{background:var(--chip);color:var(--navy);border:1px solid #d6e3f2;border-radius:999px;padding:4px 11px;font-size:12.5px;font-weight:600}
+  .kvs{display:grid;grid-template-columns:1fr;gap:5px;font-size:13.5px}
+  .kvrow{display:flex;justify-content:space-between;gap:14px;padding:4px 0;border-bottom:1px dashed var(--line)}
+  .kvrow span:first-child{color:var(--muted)}
+  .timeline{display:flex;flex-direction:column;gap:6px}
+  .tl{display:flex;justify-content:space-between;background:var(--soft);border-radius:8px;padding:7px 11px;font-size:13px}
+  .tl .d{color:var(--muted)} .tl .p{font-weight:700;color:var(--navy)}
+  .desc{font-size:14px;white-space:pre-wrap;color:#334155;line-height:1.55}
+  .gal{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px}
+  .gal img{width:120px;height:84px;object-fit:cover;border-radius:8px;border:1px solid var(--line)}
+  .ext{display:inline-block;margin-top:14px;color:var(--blue);font-weight:700;text-decoration:none}
+</style></head>
+<body>
+<div class="hero"><h1>Belconnen Sold-History — Explorer</h1>
+  <div class="sub">allhomes.com.au research &middot; sold properties &middot; data only</div></div>
+<div class="bar">
+  <input id="q" placeholder="Search address, street, suburb, agent, agency…">
+  <select id="suburb"><option value="">All suburbs</option></select>
+  <select id="street"><option value="">All streets</option></select>
+  <select id="status"><option value="">All statuses</option></select>
+  <select id="sort">
+    <option value="date">Newest sold</option>
+    <option value="price-desc">Price high→low</option>
+    <option value="price-asc">Price low→high</option>
+    <option value="addr">Address A→Z</option>
+  </select>
+  <span class="count" id="count"></span>
+</div>
+<div class="wrap"><div id="out"></div></div>
+<div class="modal" id="modal"><div class="sheet" id="sheet"></div></div>
+<script>
+const G=(r,k)=>{const v=(r&&r[k]!=null)?String(r[k]):"";return (v==="N/A"||v==="0"&&["Agency","Agent Name"].includes(k))?"":v;};
+const RAW=(r,k)=>(r&&r[k]!=null)?String(r[k]):"";
+let ALL=[],VIEW=[];
+const $=s=>document.querySelector(s);
+function priceNum(s){const m=String(s).replace(/[^\d]/g,"");return m?+m:0;}
+async function load(){
+  try{const r=await fetch("belconnen_details.json?_="+Date.now());ALL=await r.json();}
+  catch(e){$("#out").innerHTML='<div class="empty">Could not load belconnen_details.json.<br>Run <b>serve.bat</b> then open http://localhost:8000/belconnen.html</div>';return;}
+  fillSel("#suburb","Suburb");fillSel("#street","Street");fillSel("#status","Status");apply();
+}
+function fillSel(sel,key){
+  const vals=[...new Set(ALL.map(r=>RAW(r,key)).filter(v=>v&&v!=="N/A"))].sort();
+  $(sel).innerHTML=$(sel).children[0].outerHTML+vals.map(v=>`<option>${v}</option>`).join("");
+}
+function apply(){
+  const q=$("#q").value.toLowerCase(),sb=$("#suburb").value,st=$("#street").value,stt=$("#status").value,so=$("#sort").value;
+  VIEW=ALL.filter(r=>{
+    if(sb&&RAW(r,"Suburb")!==sb)return false;
+    if(st&&RAW(r,"Street")!==st)return false;
+    if(stt&&RAW(r,"Status")!==stt)return false;
+    if(q){const h=["Address","Street","Suburb","Agent Name","Agency","Listing ID"].map(k=>RAW(r,k)).join(" ").toLowerCase();if(!h.includes(q))return false;}
+    return true;
+  });
+  const cmp={
+    "price-desc":(a,b)=>priceNum(RAW(b,"Price / Sold Price"))-priceNum(RAW(a,"Price / Sold Price")),
+    "price-asc":(a,b)=>priceNum(RAW(a,"Price / Sold Price"))-priceNum(RAW(b,"Price / Sold Price")),
+    "addr":(a,b)=>RAW(a,"Address").localeCompare(RAW(b,"Address")),
+    "date":(a,b)=>RAW(b,"Sold Date").localeCompare(RAW(a,"Sold Date")),
+  }[so];
+  if(cmp)VIEW.sort(cmp);
+  render();
+}
+function money(s){const n=priceNum(s);return n?"$"+n.toLocaleString():(G({x:s},"x")||"—");}
+function render(){
+  $("#count").textContent=VIEW.length.toLocaleString()+" / "+ALL.length.toLocaleString()+" properties";
+  if(!VIEW.length){$("#out").innerHTML='<div class="empty">No matching properties.</div>';return;}
+  const cards=VIEW.slice(0,600).map((r,i)=>{
+    const st=RAW(r,"Status"),sold=st.toUpperCase()==="SOLD";
+    const beds=RAW(r,"Bedrooms"),bath=RAW(r,"Bathrooms"),car=RAW(r,"Parking"),eer=RAW(r,"EER");
+    return `<div class="card" data-i="${i}">
+      <div class="top ${sold?'sold':''}"></div>
+      <div class="body">
+        <span class="badge">${st||"—"}</span>
+        <div class="price">${money(RAW(r,"Price / Sold Price"))}</div>
+        <div class="addr">${RAW(r,"Address")}</div>
+        <div class="loc">${RAW(r,"Street")} &middot; ${RAW(r,"Suburb")} &middot; Sold ${RAW(r,"Sold Date")}</div>
+        <div class="specs">
+          <span class="spec">🛏 ${beds} Bed</span><span class="spec">🛁 ${bath} Bath</span>
+          <span class="spec">🚗 ${car} Car</span>${eer&&eer!=="0"?`<span class="spec">⚡ EER ${eer}</span>`:""}
+        </div>
+        <div class="foot"><span>${RAW(r,"Property Type")}</span><span>${G(r,"Agency")||""}</span></div>
+      </div></div>`;}).join("");
+  $("#out").innerHTML=`<div class="grid">${cards}</div>`+
+    (VIEW.length>600?`<div class="empty">Showing first 600 of ${VIEW.length} — narrow the filters to see more.</div>`:"");
+  document.querySelectorAll("#out .card").forEach(c=>c.onclick=()=>openModal(VIEW[+c.dataset.i]));
+}
+function openModal(r){
+  const cell=(k,lbl)=>{const v=RAW(r,k);return v?`<div class="cell"><div class="k">${lbl||k}</div><div class="v">${v}</div></div>`:"";};
+  const list=(k)=>{const v=G(r,k);if(!v)return"";return `<div class="kvs">`+v.split("|").map(x=>{const p=x.split(":");return `<div class="kvrow"><span>${(p[0]||"").trim()}</span><span>${p.slice(1).join(":").trim()}</span></div>`;}).join("")+`</div>`;};
+  const chips=(k)=>{const v=G(r,k);if(!v)return"";return `<div class="chips">`+v.split(/[;|]/).map(x=>x.trim()).filter(Boolean).map(x=>`<span>${x}</span>`).join("")+`</div>`;};
+  const hist=()=>{const v=G(r,"Property History");if(!v)return"";return `<div class="timeline">`+v.split("|").map(x=>{const p=x.split(":");return `<div class="tl"><span class="d">${(p[0]||"").trim()}</span><span class="p">${money(p.slice(1).join(":").trim())}</span></div>`;}).join("")+`</div>`;};
+  const imgs=G(r,"Image URLs");
+  const gal=imgs?`<div class="gal">${imgs.split(/[;,]/).map(u=>u.trim()).filter(Boolean).slice(0,30).map(u=>`<img src="${u}" onerror="this.style.display='none'">`).join("")}</div>`:"";
+  const sec=(t,b)=>b?`<div class="sec">${t}</div>${b}`:"";
+  const desc=G(r,"Description");
+  $("#sheet").innerHTML=`
+    <div class="head"><button class="close" onclick="document.getElementById('modal').classList.remove('open')">&times;</button>
+      <h2>${RAW(r,"Address")}</h2>
+      <div class="sub">${RAW(r,"Street")} &middot; ${RAW(r,"Suburb")} ${RAW(r,"State")} ${RAW(r,"Postcode")}</div>
+      <div class="mprice">${money(RAW(r,"Price / Sold Price"))} &middot; <span style="font-size:14px;font-weight:600">${RAW(r,"Status")} ${RAW(r,"Sold Date")}</span></div>
+    </div>
+    <div class="mbody">
+      ${gal}
+      <div class="grid2">
+        ${cell("Property Type","Type")}${cell("Bedrooms","Beds")}${cell("Bathrooms","Baths")}${cell("Parking","Parking")}
+        ${cell("EER","EER")}${cell("Building Size","Building m²")}${cell("Listing ID","Listing ID")}
+        ${cell("Viewed (page views)","Views")}${cell("Last Updated","Last Updated")}${cell("Source Locality","Found via")}
+      </div>
+      ${sec("Features",chips("Features"))}
+      ${sec("Key Details",list("Key Details"))}
+      ${sec("Other / Block Details",list("Other / Block Details"))}
+      ${sec("What's Nearby",chips("What's Nearby"))}
+      ${sec("Property History",hist())}
+      ${sec("Agent & Agency",(G(r,"Agent Name")||G(r,"Agency"))?`<div class="kvs">
+         <div class="kvrow"><span>Agent</span><span>${G(r,"Agent Name")||"—"} ${G(r,"Agent Phone")?("· "+G(r,"Agent Phone")):""}</span></div>
+         <div class="kvrow"><span>Agency</span><span>${G(r,"Agency")||"—"} ${G(r,"Agency Phone")?("· "+G(r,"Agency Phone")):""}</span></div></div>`:"")}
+      ${sec("Description",desc?`<div class="desc">${desc}</div>`:"")}
+      ${RAW(r,"Listing URL")&&RAW(r,"Listing URL")!=="N/A"?`<a class="ext" href="${RAW(r,"Listing URL")}" target="_blank">View original listing &#8599;</a>`:""}
+    </div>`;
+  $("#modal").classList.add("open");
+}
+["#q","#suburb","#street","#status","#sort"].forEach(s=>$(s).addEventListener("input",apply));
+$("#modal").addEventListener("click",e=>{if(e.target.id==="modal")e.currentTarget.classList.remove("open")});
+document.addEventListener("keydown",e=>{if(e.key==="Escape")$("#modal").classList.remove("open")});
+load();
+</script>
+</body></html>

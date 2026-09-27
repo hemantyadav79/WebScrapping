@@ -1,0 +1,21 @@
+flowchart TD
+    A[CLI / config run] --> B[ProxyManager<br/>sticky/rotating session]
+    B --> C[Render engine launch<br/>DrissionPage Chromium + stealth flags]
+    C --> D[Seed: search results URL]
+    D --> E[Pagination traversal<br/>list-1 -> list-2 -> ... allowed_paths scoped]
+    E --> F[Per page: navigate + wait<br/>page_load_wait]
+    F --> G{Bot-block check<br/>Kasada / Cloudflare / DataDome}
+    G -- blocked --> H[Report block + retry<br/>reload / rotate IP]
+    H --> F
+    G -- clear --> I[Extract __NEXT_DATA__ hydration JSON]
+    I -- present --> J[Map structured listing record]
+    I -- absent --> K[DOM fallback: residential-card selectors]
+    K --> J
+    J --> L[DataValidator<br/>auto-fix + quality score 0-100]
+    L -- score >= min --> M[Accept record]
+    L -- score < min --> N[Reject + log to listings_quality.csv]
+    M --> O[Persist: listings.csv / xlsx / json]
+    M --> P[Image download<br/>concurrent, cookie+referer, dedupe]
+    O --> Q[Reports + sitemap + proxy_health.json]
+    P --> Q
+    Q --> R[master_report.xlsx across sites]

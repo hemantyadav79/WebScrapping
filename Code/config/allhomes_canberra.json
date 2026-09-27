@@ -1,0 +1,63 @@
+{
+  "global": {
+    "output_root": "website_backup",
+    "concurrency": 1,
+    "request_timeout": 45,
+    "rate_limit_per_sec": 2,
+    "max_retries": 3,
+    "retry_backoff": 0.5,
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0 Safari/537.36",
+    "render_engine": "http",
+    "headless": false,
+    "page_load_wait": 4.0,
+    "override_user_agent": false,
+    "block_detection": true,
+    "respect_robots_txt": false,
+    "use_ollama": false,
+    "ollama_host": "http://localhost:11434",
+    "ollama_model": "llama3.2",
+    "ollama_timeout": 20,
+    "validate_before_save": true,
+    "auto_fix_data": true,
+    "min_quality_score": 30,
+    "log_level": "INFO",
+    "stealth": true,
+    "detail_delay_sec": 2.0,
+    "chrome_user_data_dir": "",
+    "chrome_debugger_address": "",
+    "supabase_url": "",
+    "supabase_key": ""
+  },
+  "websites": [
+    {
+      "name": "AllhomesCanberra",
+      "url": "https://www.allhomes.com.au/sale/search?region=canberra-act",
+      "mode": "listings",
+      "max_depth": 30,
+      "max_pages": 51,
+      "follow_pagination": false,
+      "render_engine": "drission",
+      "extract_listings": true,
+      "listing_source": "allhomes",
+      "allowed_paths": [
+        "/sale",
+        "/for-sale"
+      ],
+      "download_images": true,
+      "download_css": false,
+      "download_js": false,
+      "download_fonts": false,
+      "download_videos": false,
+      "download_documents": false,
+      "take_screenshots": false,
+      "rewrite_links": false,
+      "include_subdomains": false,
+      "export_csv": true,
+      "export_excel": true,
+      "export_json": true,
+      "pagination_search_api": true,
+      "fetch_details": true,
+      "fetch_details_limit": 0
+    }
+  ]
+}

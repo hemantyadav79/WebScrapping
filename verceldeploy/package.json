@@ -1,0 +1,9 @@
+{
+  "name": "belconnen-live",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Live Belconnen sold-history viewer — Vercel static site + serverless API reading Supabase server-side.",
+  "engines": {
+    "node": ">=18"
+  }
+}

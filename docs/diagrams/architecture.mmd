@@ -1,0 +1,28 @@
+flowchart TD
+    CFG[JSON Config File] --> LOADER[config.loader<br/>load + validate]
+    LOADER --> APP[Application<br/>orchestrator]
+    APP -->|per website| PROC[WebsiteProcessor<br/>pipeline]
+
+    subgraph Pipeline[WebsiteProcessor pipeline]
+        direction TB
+        PROC --> ENG{RenderEngine<br/>factory}
+        ENG -->|http| HTTP[HttpRenderEngine<br/>aiohttp]
+        ENG -->|drission| DRI[DrissionRenderEngine<br/>Chromium]
+        PROC --> CR[Crawler<br/>BFS + frontier]
+        CR --> PARSER[PageParser<br/>BS4 + lxml]
+        CR --> FR[Frontier<br/>queue/visited]
+        PROC --> DL[AssetDownloader<br/>concurrent + dedupe]
+        PROC --> SS[ScreenshotService]
+        PROC --> RW[LinkRewriter<br/>offline clone]
+        PROC --> ST[CrawlState<br/>resume checkpoint]
+        PROC --> REP[ReportBuilder<br/>+ Sitemap]
+    end
+
+    HTTP --> WS[(Workspace<br/>folder tree)]
+    DRI --> WS
+    DL --> WS
+    SS --> WS
+    RW --> WS
+    REP --> OUT[[CSV / XLSX / JSON<br/>sitemap.xml/json]]
+    APP --> MASTER[[master_report.xlsx]]
+    ST --> STATE[(crawl_state.json)]

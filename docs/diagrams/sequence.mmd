@@ -1,0 +1,36 @@
+sequenceDiagram
+    actor User
+    participant Main as main.py
+    participant App as Application
+    participant Proc as WebsiteProcessor
+    participant Eng as RenderEngine
+    participant Cr as Crawler
+    participant DL as AssetDownloader
+    participant RW as LinkRewriter
+    participant Rep as ReportBuilder
+
+    User->>Main: webarchiver --config cfg.json
+    Main->>App: run()
+    loop each website
+        App->>Proc: run()
+        Proc->>Eng: start()
+        Proc->>Cr: crawl(on_page)
+        loop frontier not empty
+            Cr->>Eng: fetch(url)
+            Eng-->>Cr: FetchResult(html, status)
+            Cr->>Cr: parse + discover links
+            Cr->>Proc: on_page(record, html)
+            Proc->>Proc: save HTML + checkpoint state
+        end
+        Cr-->>Proc: CrawlOutcome
+        Proc->>DL: download_all(assets)
+        DL->>Eng: fetch_binary(url) (concurrent)
+        DL-->>Proc: AssetRecords (deduped)
+        Proc->>RW: rewrite(pages)
+        Proc->>Rep: build_all(pages, assets, broken, summary)
+        Rep-->>Proc: CSV/XLSX/JSON + sitemaps
+        Proc->>Eng: close()
+        Proc-->>App: SiteSummary
+    end
+    App->>App: write_master_report()
+    App-->>User: run summary
